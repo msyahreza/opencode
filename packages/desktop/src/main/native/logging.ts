@@ -290,7 +290,7 @@ function writeZip(fs: FileSystem.FileSystem, output: string, entries: Entry[]) {
 }
 
 function initConsoleTransport() {
-  if (app.isPackaged) {
+  if (app.isPackaged || process.env.OPENCODE_DESKTOP_PRIVATE_SIDECAR === "1") {
     log.transports.console.level = false
     return
   }

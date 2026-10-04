@@ -1,6 +1,7 @@
 // Imported first so its evaluation stamps the moment Electron handed control to this module.
 import { marks } from "./lifecycle/marks"
 import { app } from "electron"
+import { ANTIGRAVITY_BUILD } from "./constants"
 import { acquireApplicationLock, configureApplication } from "./lifecycle/configure"
 import { startSidecarProbe } from "./service/sidecar-probe"
 import { registerStorageSnapshotHandler } from "./storage/snapshot"
@@ -22,6 +23,10 @@ if (acquireApplicationLock()) {
     registerStorageSnapshotHandler()
     createEarlyWindow()
     marks.window = Date.now()
+    if (ANTIGRAVITY_BUILD) {
+      const { prepareAntigravity } = await import("./antigravity-profile")
+      await prepareAntigravity()
+    }
     startSidecarProbe()
     // The window's renderer is already loading. Its HTML and preloaded chunks are served from this
     // thread, so the bundle waits for that burst to be answered (or a cap) before it evaluates.

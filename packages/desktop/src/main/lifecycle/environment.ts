@@ -3,6 +3,7 @@ import { getCACertificates, setDefaultCACertificates } from "node:tls"
 import { app } from "electron"
 import { Effect, Path } from "effect"
 import { DesktopPaths } from "../paths"
+import { ANTIGRAVITY_BUILD } from "../constants"
 import { getUserShell, loadShellEnv } from "../service/shell-env"
 import { registerRendererProtocol, setDockIcon, setProtocolReporter } from "../windows"
 import { scoped } from "../native/logging"
@@ -23,7 +24,8 @@ export const preferApplicationEnvironment = Effect.gen(function* () {
   const shell = process.platform === "win32" ? null : getUserShell()
   const shellEnv = shell ? yield* loadShellEnv(shell) : null
   yield* Effect.sync(() => {
-    if (!shellEnv?.XDG_STATE_HOME) delete process.env.XDG_STATE_HOME
+    if (!shellEnv?.XDG_STATE_HOME && process.env.OPENCODE_DESKTOP_PRIVATE_SIDECAR !== "1")
+      delete process.env.XDG_STATE_HOME
     Object.assign(process.env, {
       ...shellEnv,
       OPENCODE_EXPERIMENTAL_ICON_DISCOVERY: "true",
@@ -36,7 +38,7 @@ export const preferApplicationEnvironment = Effect.gen(function* () {
 export const prepareDesktop = Effect.gen(function* () {
   const path = yield* Path.Path
   const paths = yield* DesktopPaths.resolve
-  if (app.isPackaged || process.env.OPENCODE_DESKTOP_DISABLE_PROTOCOL_REGISTRATION !== "1")
+  if (!ANTIGRAVITY_BUILD && (app.isPackaged || process.env.OPENCODE_DESKTOP_DISABLE_PROTOCOL_REGISTRATION !== "1"))
     app.setAsDefaultProtocolClient("opencode")
   const runFork = Effect.runForkWith(yield* Effect.context())
   setProtocolReporter((level, message, data) =>

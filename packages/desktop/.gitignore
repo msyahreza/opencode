@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 dist
+dist-antigravity
 dist-ssr
 *.local
 
@@ -25,5 +26,7 @@ dist-ssr
 out/
 
 resources/opencode-cli*
+resources/antigravity-sdk.mjs
+resources/antigravity-plugin/
 resources/icons
 resources/*.metainfo.xml
